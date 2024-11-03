@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Penimbang Zakat Pertanian</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('zakat-background.jpg'); 
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .scale-container {
+            display: inline-block;
+            position: relative;
+            width: 300px;
+            height: 300px;
+            background: #8AB76A;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .scale-dial {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 260px;
+            height: 260px;
+            border: 10px solid #ffffff;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .needle {
+            position: absolute;
+            top: 130px;
+            left: 50%;
+            width: 4px;
+            height: 90px;
+            background: #444;
+            transform-origin: bottom center;
+            transform: rotate(-60deg);
+            transition: transform 1s ease-in-out;
+            z-index: 10;
+        }
+
+        .lampu {
+            width: 20px;
+            height: 20px;
+            background: #888;
+            border-radius: 50%;
+            margin-top: 20px;
+            transition: background 0.5s ease-in-out;
+            display: inline-block;
+        }
+
+        .lampu.hijau {
+            background: #28a745;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% {
+                opacity: 1;
+            }
+            51%, 100% {
+                opacity: 0;
+            }
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+        }
+
+        .input-container input, .input-container select {
+            padding: 5px;
+            font-size: 16px;
+            margin-right: 5px;
+        }
+
+        .input-container button {
+            padding: 5px 10px;
+            font-size: 16px;
+            background: #28a745;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Penimbang Zakat Pertanian</h1>
+    <div class="input-container">
+        <input type="number" id="weightInput" placeholder="Masukkan berat (kg)" min="0">
+        <select id="irrigationType">
+            <option value="0">Pilih jenis pengairan</option>
+            <option value="0.10">Air Hujan (10%)</option>
+            <option value="0.05">Sistem Pengairan (5%)</option>
+        </select>
+        <button onclick="updateScale()">Kira</button>
+    </div>
+    <div class="scale-container">
+        <div class="scale-dial">
+            <div class="needle" id="scaleNeedle"></div>
+        </div>
+    </div>
+    <div class="lampu" id="lampuHijau"></div>
+    <div class="result" id="resultText"></div>
+    <div class="result" id="zakatAmount"></div>
+
+    <script>
+        function updateScale() {
+            const weightInput = document.getElementById('weightInput').value;
+            const irrigationType = document.getElementById('irrigationType').value;
+            const scaleNeedle = document.getElementById('scaleNeedle');
+            const lampu = document.getElementById('lampuHijau');
+            const resultText = document.getElementById('resultText');
+            const zakatAmount = document.getElementById('zakatAmount');
+
+            const weight = parseFloat(weightInput);
+            const zakatRate = parseFloat(irrigationType);
+
+            if (isNaN(weight) || weight < 0) {
+                resultText.innerText = 'Sila masukkan berat yang sah.';
+                zakatAmount.innerText = '';
+                return;
+            }
+
+            if (isNaN(zakatRate) || zakatRate === 0) {
+                resultText.innerText = 'Sila pilih jenis pengairan untuk mengira zakat.';
+                zakatAmount.innerText = '';
+                return;
+            }
+
+            // Calculate the rotation degree for the needle, from -60deg (0kg) to 90deg (1000kg)
+            let rotationDegree = -60 + (weight / 1000) * 150;
+            rotationDegree = Math.min(rotationDegree, 90);  // Ensure it does not exceed 90 degrees
+            scaleNeedle.style.transform = `rotate(${rotationDegree}deg)`;
+
+            // Check if the weight is 653 kg or more
+            if (weight >= 653) {
+                lampu.classList.add('hijau');
+                resultText.innerText = 'Hasil anda melebihi 653 kg. Anda perlu membayar zakat pertanian.';
+                // Calculate the zakat in kg
+                const zakat = weight * zakatRate;
+                zakatAmount.innerText = `Jumlah zakat yang perlu dibayar adalah: ${zakat.toFixed(2)} kg`;
+            } else {
+                lampu.classList.remove('hijau');
+                resultText.innerText = 'Hasil anda tidak melebihi 653 kg. Anda tidak perlu membayar zakat pertanian.';
+                zakatAmount.innerText = '';
+            }
+        }
+    </script>
+</body>
+</html>
